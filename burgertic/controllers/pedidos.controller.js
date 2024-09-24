@@ -10,6 +10,12 @@ const getPedidos = async (req, res) => {
             3. Devolver un mensaje de error si algo falló (status 500)
         
     */
+            try {
+                const pedidos = await pedidosService.getPedidos();
+                res.status(200).json(pedidos);
+            } catch (error) {
+                res.status(500).json({ error: "Error al obtener los pedidos" });
+            }
 };
 
 const getPedidosByUser = async (req, res) => {
@@ -23,6 +29,19 @@ const getPedidosByUser = async (req, res) => {
             4. Devolver un mensaje de error si algo falló (status 500)
         
     */
+            const { id } = req.params;
+
+            if (!id) return res.status(400).json({ message: "Se requiere el ID del pedido" });
+        
+            try {
+                const pedidos = await PedidosService.getPedidosByUser(usId);
+                if (pedidos.length === 0) {
+                    return res.status(404).json({ message: "No hay pedidos para este usuario" });
+                }
+                res.status(200).json(pedidos);
+            } catch (error) {
+                res.status(500).json({ message: error.message });
+            }
 };
 
 const getPedidoById = async (req, res) => {
@@ -36,6 +55,19 @@ const getPedidoById = async (req, res) => {
             4. Devolver un mensaje de error si algo falló (status 500)
         
     */
+            const { id } = req.params;
+
+            if (!id) return res.status(400).json({ message: "Se requiere el ID del pedido" });
+        
+            try {
+                const pedido = await PedidosService.getPedidoById(id);
+                if (!pedido) {
+                    return res.status(404).json({ message: "No se encontro un pedido" });
+                }
+                res.status(200).json(pedido);
+            } catch (error) {
+                res.status(500).json({ message: error.message });
+            }
 };
 
 const createPedido = async (req, res) => {
@@ -53,6 +85,23 @@ const createPedido = async (req, res) => {
             8. Devolver un mensaje de error si algo falló (status 500)
         
     */
+            const { platos } = req.body;
+
+            if (!platos || !Array.isArray(platos) || platos.length === 0) {
+                return res.status(400).json({ message: "El pedido debe contener al menos un plato válido" });
+            }
+        
+            try {
+                const valiPlatos = platos.every(plato => plato.id && plato.cantidad);
+                if (!valiPlatos) {
+                    return res.status(400).json({ message: "Todos los platos deben tener un ID y una cantidad" });
+                }
+        
+                const pedido = await PedidosService.createPedido(req.userId, platos);
+                res.status(201).json({ message: "Se creo exitosamente el pedido", pedido });
+            } catch (error) {
+                res.status(500).json({ message: error.message });
+            }
 };
 
 const aceptarPedido = async (req, res) => {
@@ -69,6 +118,24 @@ const aceptarPedido = async (req, res) => {
             7. Devolver un mensaje de error si algo falló (status 500)
         
     */
+            const { id } = req.params;
+
+            if (!id) return res.status(400).json({ message: "Se requiere el ID del pedido" });
+        
+            try {
+                const pedido = await PedidosService.getPedidoById(id);
+                if (!pedido) {
+                    return res.status(404).json({ message: "Pedido no encontrado" });
+                }
+                if (pedido.estado !== "pendiente") {
+                    return res.status(400).json({ message: "El pedido no está en estado pendiente" });
+                }
+        
+                const pedidoActualizado = await PedidosService.updatePedido(id, "aceptado");
+                res.status(200).json({ message: "Pedido aceptado", pedido: pedidoActualizado });
+            } catch (error) {
+                res.status(500).json({ message: error.message });
+            }
 };
 
 const comenzarPedido = async (req, res) => {
@@ -85,6 +152,24 @@ const comenzarPedido = async (req, res) => {
             7. Devolver un mensaje de error si algo falló (status 500)
         
     */
+            const { id } = req.params;
+
+            if (!id) return res.status(400).json({ message: "Se requiere el ID del pedido" });
+        
+            try {
+                const pedido = await PedidosService.getPedidoById(id);
+                if (!pedido) {
+                    return res.status(404).json({ message: "No se encontro un pedido" });
+                }
+                if (pedido.estado !== "aceptado") {
+                    return res.status(400).json({ message: "El pedido no está en estado aceptado" });
+                }
+        
+                const pedidoActualizado = await PedidosService.updatePedido(id, "en camino");
+                res.status(200).json({ message: "Pedido en camino", pedido: pedidoActualizado });
+            } catch (error) {
+                res.status(500).json({ message: error.message });
+            }
 };
 
 const entregarPedido = async (req, res) => {
@@ -101,6 +186,24 @@ const entregarPedido = async (req, res) => {
             7. Devolver un mensaje de error si algo falló (status 500)
         
     */
+            const { id } = req.params;
+
+            if (!id) return res.status(400).json({ message: "Se requiere el ID del pedido" });
+        
+            try {
+                const pedido = await PedidosService.getPedidoById(id);
+                if (!pedido) {
+                    return res.status(404).json({ message: "Pedido no encontrado" });
+                }
+                if (pedido.estado !== "en camino") {
+                    return res.status(400).json({ message: "El pedido no está en estado en camino" });
+                }
+        
+                const pedidoActualizado = await PedidosService.updatePedido(id, "entregado");
+                res.status(200).json({ message: "Pedido entregado", pedido: pedidoActualizado });
+            } catch (error) {
+                res.status(500).json({ message: error.message });
+            }
 };
 
 const deletePedido = async (req, res) => {
@@ -115,6 +218,17 @@ const deletePedido = async (req, res) => {
             5. Devolver un mensaje de error si algo falló (status 500)
         
     */
+            const { id } = req.params;
+
+            if (!id) return res.status(400).json({ message: "Se requiere el ID del pedido" });
+        
+            try {
+                const pedidoEliminado = await PedidosService.deletePedido(id);
+                res.status(200).json({ message: "Pedido eliminado", pedido: pedidoEliminado });
+            } catch (error) {
+                res.status(500).json({ message: error.message });
+            }
+
 };
 
 export default {

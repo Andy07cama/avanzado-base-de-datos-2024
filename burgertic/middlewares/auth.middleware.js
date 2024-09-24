@@ -14,6 +14,21 @@ export const verifyToken = async (req, res, next) => {
     
         Recordar también que si sucede cualquier error en este proceso, deben devolver un error 401 (Unauthorized)
     */
+        try {
+            const authHeader = req.headers['authorization'];
+            if (!authHeader || !authHeader.split("Bearer ")) {
+                return res.status(401).json({ message: "Falta token o está mal formado" });
+            }
+            const token = authHeader.split(" ")[1];
+            const veryfi = jwt.verify(token, "Hola, como estas");
+            if (!veryfi.id) {
+                return res.status(401).json({ message: "Falta el id de usuario, token invalido" });
+            }
+            req.userId = veryfi.id;
+            next();
+        } catch (error) {
+            return res.status(401).json({ message: "Token inválido o expirado" });
+        }
 };
 
 export const verifyAdmin = async (req, res, next) => {
@@ -26,4 +41,13 @@ export const verifyAdmin = async (req, res, next) => {
             2. Si no lo es, devolver un error 403 (Forbidden)
     
     */
+            try{
+                const usuario = await UsuariosService.getUsuarioById(req.userId);
+                if(!usuario || usuario.admin === false){
+                    return res.status(403).json({error: 'No tenes el permiso para hacer esta acción'})
+                }
+            } catch (error){
+                return res.status(403).json({error: 'No tenes el permiso para hacer esta acción'})
+            }
+            next();
 };
