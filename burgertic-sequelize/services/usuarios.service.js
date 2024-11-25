@@ -1,61 +1,51 @@
-import { config } from "../db.js";
-import pkg from "pg";
-const { Client } = pkg;
+import { Plato } from "../models/platos.model.js";
 
-const getUsuarioByEmail = async (email) => {
-    const client = new Client(config);
-    await client.connect();
+const getPlatos = async () => await Plato.findAll();
 
-    try {
-        const { rows } = await client.query(
-            "SELECT * FROM usuarios WHERE email = $1",
-            [email]
-        );
-        if (rows.length < 1) return null;
+const getPlatoById = async (id) =>
+    await Plato.findAll({
+        where: {
+            id: id,
+        },
+    });
 
-        await client.end();
-        return rows[0];
-    } catch (error) {
-        await client.end();
-        throw error;
-    }
+const createPlato = async (plato) =>
+    Plato.create({
+        tipo: plato.tipo,
+        nombre: plato.nombre,
+        precio: plato.precio,
+        descripcion: plato.descripcion,
+    });
+
+const updatePlato = async (id, newData) => {
+    const plato = await Plato.findByPk(id);
+
+    if (!plato) throw new Error("Plato no encontrado");
+
+    plato.tipo = newData.tipo;
+    plato.nombre = newData.nombre;
+    plato.precio = newData.precio;
+    plato.descripcion = newData.descripcion;
+
+    await plato.save();
 };
 
-const getUsuarioById = async (id) => {
-    const client = new Client(config);
-    await client.connect();
+const deletePlato = async (id) => {
+    const plato = await Plato.findByPk(id);
 
-    try {
-        const { rows } = await client.query(
-            "SELECT * FROM usuarios WHERE id = $1",
-            [id]
-        );
-        if (rows.length < 1) return null;
+    if (!plato) throw new Error("Plato no encontrado");
 
-        await client.end();
-        return rows[0];
-    } catch (error) {
-        await client.end();
-        throw error;
-    }
+    await plato.destroy();
 };
 
-const createUsuario = async (usuario) => {
-    const client = new Client(config);
-    await client.connect();
+const getPlatosByTipo = async (tipo) =>
+    Plato.findAll({ where: { tipo: tipo } });
 
-    try {
-        const { rows } = await client.query(
-            "INSERT INTO usuarios (nombre, apellido, email, password, admin) VALUES ($1, $2, $3, $4, false)",
-            [usuario.nombre, usuario.apellido, usuario.email, usuario.password]
-        );
-
-        await client.end();
-        return rows;
-    } catch (error) {
-        await client.end();
-        throw error;
-    }
+export default {
+    getPlatos,
+    getPlatoById,
+    createPlato,
+    updatePlato,
+    deletePlato,
+    getPlatosByTipo,
 };
-
-export default { getUsuarioByEmail, getUsuarioById, createUsuario };

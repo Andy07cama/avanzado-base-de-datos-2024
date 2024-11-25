@@ -20,7 +20,7 @@ const createPlato = async (plato) =>
 const updatePlato = async (id, newData) => {
     const plato = await Plato.findByPk(id);
 
-    if (!plato) throw new Error("Plato no encontrado");
+    if (!plato) throw new Error("No se hallo ningun plato");
 
     plato.tipo = newData.tipo;
     plato.nombre = newData.nombre;
@@ -33,7 +33,7 @@ const updatePlato = async (id, newData) => {
 const deletePlato = async (id) => {
     const plato = await Plato.findByPk(id);
 
-    if (!plato) throw new Error("Plato no encontrado");
+    if (!plato) throw new Error("No se hallo ningun plato");
 
     await plato.destroy();
 };
