@@ -1,6 +1,6 @@
 import { DataTypes } from "sequelize";
 import { sequelize } from "../db.js";
-import { PlatosPedidos } from "./platos.pedidos.model.js"; // Cambiado el nombre de referencia
+import { PlatosPedidos } from "./platos.pedidos.model.js"; 
 
 export const Pedido = sequelize.define("Pedido", {
   id: {

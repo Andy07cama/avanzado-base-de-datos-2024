@@ -1,51 +1,55 @@
-import { Plato } from "../models/platos.model.js";
+import {Usuario} from '../models/usuarios.model.js';
 
-const getPlatos = async () => await Plato.findAll();
+const getUsuarios = async () => await Usuario.findAll();
 
-const getPlatoById = async (id) =>
-    await Plato.findAll({
+const getUsuarioById = async (id) =>
+    await Usuario.findOne({ 
         where: {
             id: id,
         },
     });
 
-const createPlato = async (plato) =>
-    Plato.create({
-        tipo: plato.tipo,
-        nombre: plato.nombre,
-        precio: plato.precio,
-        descripcion: plato.descripcion,
+const getUsuarioByEmail = async (email) =>
+    await Usuario.findOne({
+        where: {
+            email: email,
+        },
     });
 
-const updatePlato = async (id, newData) => {
-    const plato = await Plato.findByPk(id);
+const createUsuario = async (usuario) =>
+    Usuario.create({
+        nombre: usuario.nombre,
+        apellido: usuario.apellido,
+        email: usuario.email,
+        password: usuario.password,
+    });
 
-    if (!plato) throw new Error("Plato no encontrado");
+const updateUsuario = async (id, newData) => {
+    const usuario = await Usuario.findByPk(id);
 
-    plato.tipo = newData.tipo;
-    plato.nombre = newData.nombre;
-    plato.precio = newData.precio;
-    plato.descripcion = newData.descripcion;
+    if (!usuario) throw new Error("Usuario no encontrado");
 
-    await plato.save();
+    usuario.nombre = newData.nombre;
+    usuario.apellido = newData.apellido;
+    usuario.email = newData.email;
+    usuario.password = newData.password;
+
+    await usuario.save();
 };
 
-const deletePlato = async (id) => {
-    const plato = await Plato.findByPk(id);
+const deleteUsuario = async (id) => {
+    const usuario = await Usuario.findByPk(id);
 
-    if (!plato) throw new Error("Plato no encontrado");
+    if (!usuario) throw new Error("Usuario no encontrado");
 
-    await plato.destroy();
+    await usuario.destroy();
 };
-
-const getPlatosByTipo = async (tipo) =>
-    Plato.findAll({ where: { tipo: tipo } });
 
 export default {
-    getPlatos,
-    getPlatoById,
-    createPlato,
-    updatePlato,
-    deletePlato,
-    getPlatosByTipo,
+    getUsuarios,
+    getUsuarioById,
+    getUsuarioByEmail,
+    createUsuario,
+    updateUsuario,
+    deleteUsuario,
 };
