@@ -14,5 +14,5 @@ PlatosPedidos.init(
       type: DataTypes.INTEGER,
     },
   },
-  { sequelize }
+  { sequelize, modelName: "platosPedidos" }
 );

@@ -1,8 +1,8 @@
-import { DataTypes } from "sequelize";
+import { DataTypes, Model } from "sequelize";
 import { sequelize } from "../db.js";
-import { PlatosPedidos } from "./platos.pedidos.model.js"; 
-
-export const Pedido = sequelize.define("Pedido", {
+import { PlatosPedidos } from "./platosypedidos.model.js";
+export class Pedido extends Model { }
+Pedido.init({
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -12,7 +12,4 @@ export const Pedido = sequelize.define("Pedido", {
     type: DataTypes.STRING,
     allowNull: false,
   },
-});
-
-Pedido.hasMany(PlatosPedidos); 
-PlatosPedidos.belongsTo(Pedido); 
+}, {sequelize});
